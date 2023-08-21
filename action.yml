@@ -1,0 +1,21 @@
+name: 'Simple compose service updates'
+description: 'Simple compose service update process for your repos'
+inputs:
+  default_branch: 
+    description: 'Path to file'
+    required: false
+    default: 'master'
+  skips:
+    description: 'Skip some services'
+    required: false
+    default: ''
+runs:
+  using: composite
+  steps:
+    - name: compose service updates
+      shell: bash
+      run: |
+        default_branch=${{ inputs.default_branch }}
+        skips=${{ inputs.skips }}
+
+        ${{ github.action_path }}/bin/pincher.sh "$default_branch" "$skips"
