@@ -52,8 +52,9 @@ jobs:
 - your compose files must be on your repo root.
 - your compose files must match '\*compose\*.yaml' or '\*compose\*.yml'
 - your images in compose files must include the full registry: 
-  - docker.io/somecompany/theimage:x.x.x
-  - mcr.microsoft.com/part/theimage:x.x.x
+  - `docker.io/somecompany/theimage:x.x.x` (ie, docker.io/grafana/grafana:10.0.1)
+  - `mcr.microsoft.com/part/theimage:x.x.x` (ie, mcr.microsoft.com/azure-cli:2.50.0)
+  - `gcr.io/project/image:x.x.x` (ie, gcr.io/cadvisor/cadvisor:v0.47.1)
 
 ## what for:
 
@@ -63,6 +64,7 @@ jobs:
 
 - dockerhub
 - microsoft mcr
+- google gcr
 - other? open an issue or open pr
 
 ## what does it look like
