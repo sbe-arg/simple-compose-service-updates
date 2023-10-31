@@ -2,9 +2,13 @@ name: 'Simple compose service updates'
 description: 'Simple compose service update process for your repos'
 inputs:
   default_branch: 
-    description: 'Path to file'
+    description: 'default branch'
     required: false
     default: 'master'
+  prs:
+    description: 'prs?'
+    required: false
+    default: 'generate'
   skips:
     description: 'Skip some services'
     required: false
@@ -17,5 +21,12 @@ runs:
       run: |
         default_branch=${{ inputs.default_branch }}
         skips=${{ inputs.skips }}
+        prs=${{ inputs.prs }}
 
-        ${{ github.action_path }}/bin/pincher.sh "$default_branch" "$skips"
+        # Validate the 'prs' input
+        if [[ "$prs" != "generate" && "$prs" != "skip" ]]; then
+          echo "Invalid value for 'prs' input. Allowed values are 'generate' or 'skip'."
+          exit 1
+        fi
+
+        ${{ github.action_path }}/bin/pincher.sh "$default_branch" "$prs" "$skips"

@@ -1,0 +1,15 @@
+version: '3.9'
+
+services:
+
+  hub:
+    image: docker.io/bitnami/postgresql-repmgr:14.7.0
+
+  ghcr:
+    image: ghcr.io/swissbuechi/one-time-secret:1.0.0
+
+  gcr:
+    image: gcr.io/cadvisor/cadvisor:v0.47.1
+
+  mcr:
+    image: mcr.microsoft.com/azure-storage/azurite:3.23.0
