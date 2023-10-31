@@ -38,7 +38,7 @@ jobs:
         uses: ./
         with:
           default_branch: 'main'
-          skips: 'mongodb:6,postgresql-repmgr:15' # examples
+          skips: 'postgresql-repmgr:15' # skip 15 should show 16
           prs: 'skip' # todo how do we test the prs feature?
         env:
           GH_TOKEN: ${{ github.token }} # required
