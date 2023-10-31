@@ -56,6 +56,7 @@ jobs:
   - `docker.io/somecompany/theimage:x.x.x` (ie, docker.io/grafana/grafana:10.0.1)
   - `mcr.microsoft.com/part/theimage:x.x.x` (ie, mcr.microsoft.com/azure-cli:2.50.0)
   - `gcr.io/project/image:x.x.x` (ie, gcr.io/cadvisor/cadvisor:v0.47.1)
+  - `ghcr.io/username/image:x.x.x` (ie, ghcr.io/swissbuechi/one-time-secret:1.0.10)
 
 ## what for:
 
@@ -66,6 +67,7 @@ jobs:
 - dockerhub
 - microsoft mcr
 - google gcr
+- github packages ghcr (public images)
 - other? open an issue or open pr
 
 ## what does it look like
