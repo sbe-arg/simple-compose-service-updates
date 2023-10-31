@@ -126,6 +126,27 @@ do
     [ -n "$latest_version_in_registry" ] && versions_magic
 done
 
+# github ghcr
+versions_ghcr=$(yq '.services[].image' ./*compose*.y* | grep ghcr.io | sort | uniq)
+for version in $versions_ghcr
+do
+    latest_version_in_registry=""
+
+    [[ $version =~ ghcr.io\/(.*)\:(.*) ]]
+    image=${BASH_REMATCH[1]}
+    v_rematched=${BASH_REMATCH[2]}
+    echo "image: $image, v: $v_rematched"
+    
+    # TODO: Private repos require authentication with a PAT or github token
+    # ghcr_token=$(echo $GITHUB_TOKEN | base64)
+    
+    ghcr_token=$(curl -s https://ghcr.io/token\?scope\="repository:$image:pull" | jq -r .token)
+    latest_version_in_registry="$(curl -H "Authorization: Bearer ${ghcr_token}" -s https://ghcr.io/v2/$image/tags/list | jq -r '.tags[]' | sort -V -t. -k1,1 -k2,2 -k3,3 | grep -oP '^v?[0-9]+\.[0-9]+\.[0-9]+$' | tail -n 1)"
+
+    # the magic
+    [ -n "$latest_version_in_registry" ] && versions_magic
+done
+
 # considerations "how to edit/contribute"
 # add each new registry in a separated block loop as per the existing ones
 # authentication happens via env_vars in the action block if required
