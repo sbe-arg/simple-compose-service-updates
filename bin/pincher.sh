@@ -2,13 +2,14 @@
 
 # Updates compose service versions.
 
-default_branch="$1"
+default_branch="${1:-main}"
+prs="${2:-generate}"
 # generate $skip_patterns
-IFS=',' read -ra skip_patterns <<< "$2"
+IFS=',' read -ra skip_patterns <<< "$3"
 
 # branching, pr, senver compare and sed logic
 versions_magic() {
-    if [ "$latest_version_in_registry" != "$v_rematched" ]
+    if [ "$latest_version_in_registry" != "$v_rematched" ] && [ "$prs" = "generate" ]
     then
         skip=false
         for skip_pattern in "${skip_patterns[@]}"
@@ -47,17 +48,19 @@ versions_magic() {
             git push origin "compose/$image" --force
             pr_number=$(gh pr list --head "compose/$image" --json number --jq '.[0].number')
             if [ -n "$pr_number" ]; then
-            echo "Updating PR #$pr_number"
-            gh pr edit "$pr_number" --title "docker-compose: bump $image:$latest_version_in_registry" --body "Automated PR updated by GitHub Actions"
+                echo "Updating PR #$pr_number"
+                gh pr edit "$pr_number" --title "docker-compose: bump $image:$latest_version_in_registry" --body "Automated PR updated by GitHub Actions"
             else
-            echo "No open PRs found for branch compose/$image. Creating a new PR."
-            gh pr create --title "docker-compose: bump $image:$latest_version_in_registry" --head "compose/$image" --base "$default_branch" --body "Automated PR created by GitHub Actions"
+                echo "No open PRs found for branch compose/$image. Creating a new PR."
+                gh pr create --title "docker-compose: bump $image:$latest_version_in_registry" --head "compose/$image" --base "$default_branch" --body "Automated PR created by GitHub Actions"
             fi
         else
             echo "No porcelain, nothing to do."
         fi
         # go back to base branch
         git checkout "$default_branch"
+    else
+        echo "debug: prs=$prs, latest_version_in_registry=$latest_version_in_registry, v_rematched=$v_rematched, skip_patterns=${skip_patterns[*]}"
     fi
 }
 

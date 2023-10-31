@@ -41,8 +41,9 @@ jobs:
       - name: simple-compose-service-updates
         uses: sbe-arg/simple-compose-service-updates@v0.1.0 # use sha pinning when possible
         with:
-          default_branch: 'main'
+          default_branch: 'main|master|other' # defaults to 'main'
           skips: 'mongodb:6,postgresql-repmgr:15' # examples
+          prs: 'skip|generate' # defaults to 'generate'
         env:
           GH_TOKEN: ${{ github.token }} # required
 ```

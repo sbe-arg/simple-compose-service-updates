@@ -1,0 +1,15 @@
+version: '3.9'
+
+services:
+
+  hub:
+    image: docker.io/bitnami/postgresql-repmgr:14.7.0
+
+  ghcr:
+    image: ghcr.io/org/repo:tag
+
+  gcr:
+    image: gcr.io/cadvisor/cadvisor:v0.47.2
+
+  mcr:
+    image: mcr.microsoft.com/azure-storage/azurite:3.26.0

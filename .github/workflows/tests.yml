@@ -1,0 +1,44 @@
+name: tests
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - reopened
+      - synchronize
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.repository }}/${{ github.workflow }}/${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+
+  flow:
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+
+      - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: '0'
+
+      - name: setup-git
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+      - name: simple-compose-service-updates
+        uses: ./
+        with:
+          default_branch: 'main'
+          skips: 'mongodb:6,postgresql-repmgr:15' # examples
+          prs: 'skip' # todo how do we test the prs feature?
+        env:
+          GH_TOKEN: ${{ github.token }} # required

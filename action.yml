@@ -17,5 +17,6 @@ runs:
       run: |
         default_branch=${{ inputs.default_branch }}
         skips=${{ inputs.skips }}
+        prs=${{ inputs.prs }}
 
-        ${{ github.action_path }}/bin/pincher.sh "$default_branch" "$skips"
+        ${{ github.action_path }}/bin/pincher.sh "$default_branch" "$prs" "$skips"
