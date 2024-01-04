@@ -14,7 +14,7 @@ IFS=',' read -ra ignore_patterns <<< "$4"
 ignore_check() {
     for ignore_pattern in "${ignore_patterns[@]}"
     do
-        echo "checking ignore_pattern: $ignore_pattern for image: $image"
+        echo "run ignore_check: $ignore_pattern for image: $image"
         # this might be to wide and catch more than expected but it's a start
         if [[ "$image" == *"$ignore_pattern"* ]]
         then
@@ -27,7 +27,7 @@ ignore_check() {
 skip_check() {
     for skip_pattern in "${skip_patterns[@]}"
     do
-        echo "checking skip_pattern: $skip_pattern for image: $image:$latest_version_in_registry"
+        echo "run skip_check: $skip_pattern for image: $image:$latest_version_in_registry"
         if [[ "$image:$latest_version_in_registry" == *"$skip_pattern"* ]]
         then
             skip=true
@@ -82,7 +82,7 @@ versions_magic() {
         # go back to base branch
         git checkout "$default_branch"
     else
-        echo "debug: prs=$prs, latest_version_in_registry=$latest_version_in_registry, v_rematched=$v_rematched, skip_patterns=${skip_patterns[*]}"
+        echo "debug: prs=$prs, latest_version_in_registry=$latest_version_in_registry, v_rematched=$v_rematched, skip_patterns=${skip_patterns[*]}, ignore_patterns=${ignore_patterns[*]}"
     fi
 }
 
