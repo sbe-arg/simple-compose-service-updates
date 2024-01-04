@@ -38,7 +38,7 @@ jobs:
         uses: ./
         with:
           default_branch: 'main'
-          skips: 'postgresql-repmgr:15' # skip 15 should show 16
+          skips: 'postgresql-repmgr:15,postgresql-repmgr:16' # skip 15 should show 16
           prs: 'skip' # todo how do we test the prs feature?
           ignore: 'alertmanager'
         env:

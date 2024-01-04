@@ -14,6 +14,7 @@ IFS=',' read -ra ignore_patterns <<< "$4"
 ignore_check() {
     for ignore_pattern in "${ignore_patterns[@]}"
     do
+        echo "checking ignore_pattern: $ignore_pattern for image: $image"
         # this might be to wide and catch more than expected but it's a start
         if [[ "$image" == *"$ignore_pattern"* ]]
         then
@@ -21,25 +22,18 @@ ignore_check() {
             break
         fi
     done
-    if $ignore
-    then
-        return
-    fi
 }
 
 skip_check() {
     for skip_pattern in "${skip_patterns[@]}"
     do
+        echo "checking skip_pattern: $skip_pattern for image: $image:$latest_version_in_registry"
         if [[ "$image:$latest_version_in_registry" == *"$skip_pattern"* ]]
         then
             skip=true
             break
         fi
     done
-    if $skip
-    then
-        return
-    fi
 }
 
 
@@ -48,6 +42,10 @@ versions_magic() {
     if [ "$latest_version_in_registry" != "$v_rematched" ] && [ "$prs" = "generate" ]
     then
         skip_check # check if image is in skip_patterns and break
+        if $skip
+        then
+            return
+        fi
         echo "WARN: There is a new version [$latest_version_in_registry] for $image:$v_rematched"
         # branch out and pr if changes
         git checkout -B "compose/$image"
@@ -109,6 +107,10 @@ do
 
     ignore=false
     ignore_check # check if image is in ignore_patterns and break
+    if $ignore
+    then
+        return
+    fi
 
     echo "image: $image, v: $v_rematched"
     # read X number of tag pages
@@ -135,6 +137,10 @@ do
     
     ignore=false
     ignore_check # check if image is in ignore_patterns and break
+    if $ignore
+    then
+        return
+    fi
 
     latest_version_in_registry="$(curl -s https://mcr.microsoft.com/v2/$image/tags/list | jq -r '.tags[]' | sort -V -t. -k1,1 -k2,2 -k3,3 | grep -oP '^v?[0-9]+\.[0-9]+\.[0-9]+$' | tail -n 1)"
 
@@ -155,6 +161,10 @@ do
     
     ignore=false
     ignore_check # check if image is in ignore_patterns and break
+    if $ignore
+    then
+        return
+    fi
 
     latest_version_in_registry="$(curl -s https://gcr.io/v2/$image/tags/list | jq -r '.tags[]' | sort -V -t. -k1,1 -k2,2 -k3,3 | grep -oP '^v?[0-9]+\.[0-9]+\.[0-9]+$' | tail -n 1)"
 
@@ -175,6 +185,10 @@ do
     
     ignore=false
     ignore_check # check if image is in ignore_patterns and break
+    if $ignore
+    then
+        return
+    fi
 
     # TODO: Private repos require authentication with a PAT or github token
     # ghcr_token=$(echo $GITHUB_TOKEN | base64)
