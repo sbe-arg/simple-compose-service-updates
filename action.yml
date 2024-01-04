@@ -4,7 +4,7 @@ inputs:
   default_branch: 
     description: 'default branch'
     required: false
-    default: 'master'
+    default: 'main'
   prs:
     description: 'prs?'
     required: false
