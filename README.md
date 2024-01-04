@@ -53,7 +53,7 @@ jobs:
         with:
           default_branch: 'main|master|other' # defaults to 'main'
           skips: 'mongodb:6,postgresql-repmgr:15' # examples
-          ignore: 'prom/alertmanager'
+          ignore: 'alertmanager'
           prs: 'skip|generate' # defaults to 'generate'
         env:
           GH_TOKEN: ${{ github.token }} # required
