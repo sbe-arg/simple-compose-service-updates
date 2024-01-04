@@ -21,7 +21,7 @@ ignore_check() {
             break
         fi
     done
-    if "$ignore"
+    if $ignore
     then
         return
     fi
@@ -36,7 +36,7 @@ skip_check() {
             break
         fi
     done
-    if "$skip"
+    if $skip
     then
         return
     fi
