@@ -40,5 +40,6 @@ jobs:
           default_branch: 'main'
           skips: 'postgresql-repmgr:15' # skip 15 should show 16
           prs: 'skip' # todo how do we test the prs feature?
+          ignore: 'alertmanager'
         env:
           GH_TOKEN: ${{ github.token }} # required
