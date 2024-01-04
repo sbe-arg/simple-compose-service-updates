@@ -109,7 +109,7 @@ do
     ignore_check # check if image is in ignore_patterns and break
     if $ignore
     then
-        return
+        break
     fi
 
     echo "image: $image, v: $v_rematched"
@@ -139,7 +139,7 @@ do
     ignore_check # check if image is in ignore_patterns and break
     if $ignore
     then
-        return
+        break
     fi
 
     latest_version_in_registry="$(curl -s https://mcr.microsoft.com/v2/$image/tags/list | jq -r '.tags[]' | sort -V -t. -k1,1 -k2,2 -k3,3 | grep -oP '^v?[0-9]+\.[0-9]+\.[0-9]+$' | tail -n 1)"
@@ -163,7 +163,7 @@ do
     ignore_check # check if image is in ignore_patterns and break
     if $ignore
     then
-        return
+        break
     fi
 
     latest_version_in_registry="$(curl -s https://gcr.io/v2/$image/tags/list | jq -r '.tags[]' | sort -V -t. -k1,1 -k2,2 -k3,3 | grep -oP '^v?[0-9]+\.[0-9]+\.[0-9]+$' | tail -n 1)"
@@ -187,7 +187,7 @@ do
     ignore_check # check if image is in ignore_patterns and break
     if $ignore
     then
-        return
+        break
     fi
 
     # TODO: Private repos require authentication with a PAT or github token
