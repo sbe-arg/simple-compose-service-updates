@@ -10,7 +10,11 @@ inputs:
     required: false
     default: 'generate'
   skips:
-    description: 'Skip some services'
+    description: 'Skip validation of some services'
+    required: false
+    default: ''
+  ignore:
+    description: 'Ignore entirely some services'
     required: false
     default: ''
 runs:
@@ -22,6 +26,7 @@ runs:
         default_branch=${{ inputs.default_branch }}
         skips=${{ inputs.skips }}
         prs=${{ inputs.prs }}
+        ignore=${{ inputs.ignore }}
 
         # Validate the 'prs' input
         if [[ "$prs" != "generate" && "$prs" != "skip" ]]; then
@@ -29,4 +34,4 @@ runs:
           exit 1
         fi
 
-        ${{ github.action_path }}/bin/pincher.sh "$default_branch" "$prs" "$skips"
+        ${{ github.action_path }}/bin/pincher.sh "$default_branch" "$prs" "$skips" "$ignore"

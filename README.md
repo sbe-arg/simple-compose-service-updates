@@ -25,9 +25,19 @@ jobs:
   flow:
     runs-on: ubuntu-22.04
     permissions:
+    permissions:
       contents: write
       pull-requests: write
+      packages: read
     steps:
+
+      - name: Log in to Github Container registry 
+        # needed in case you need to pull private images within the same github organization, place before checkout
+        uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
         with:
@@ -43,6 +53,7 @@ jobs:
         with:
           default_branch: 'main|master|other' # defaults to 'main'
           skips: 'mongodb:6,postgresql-repmgr:15' # examples
+          ignore: 'prom/alertmanager'
           prs: 'skip|generate' # defaults to 'generate'
         env:
           GH_TOKEN: ${{ github.token }} # required
