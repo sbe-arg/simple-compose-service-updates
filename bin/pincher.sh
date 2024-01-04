@@ -11,7 +11,6 @@ IFS=',' read -ra ignore_patterns <<< "$4"
 
 # branching, pr, senver compare and sed logic
 
-ignore=false
 ignore_check() {
     for ignore_pattern in "${ignore_patterns[@]}"
     do
@@ -28,7 +27,6 @@ ignore_check() {
     fi
 }
 
-skip=false
 skip_check() {
     for skip_pattern in "${skip_patterns[@]}"
     do
@@ -46,6 +44,7 @@ skip_check() {
 
 
 versions_magic() {
+    skip=false
     if [ "$latest_version_in_registry" != "$v_rematched" ] && [ "$prs" = "generate" ]
     then
         skip_check # check if image is in skip_patterns and break
@@ -108,6 +107,7 @@ do
         image="library/$image"
     fi
 
+    ignore=false
     ignore_check # check if image is in ignore_patterns and break
 
     echo "image: $image, v: $v_rematched"
@@ -133,6 +133,7 @@ do
     v_rematched=${BASH_REMATCH[2]}
     echo "image: $image, v: $v_rematched"
     
+    ignore=false
     ignore_check # check if image is in ignore_patterns and break
 
     latest_version_in_registry="$(curl -s https://mcr.microsoft.com/v2/$image/tags/list | jq -r '.tags[]' | sort -V -t. -k1,1 -k2,2 -k3,3 | grep -oP '^v?[0-9]+\.[0-9]+\.[0-9]+$' | tail -n 1)"
@@ -152,6 +153,7 @@ do
     v_rematched=${BASH_REMATCH[2]}
     echo "image: $image, v: $v_rematched"
     
+    ignore=false
     ignore_check # check if image is in ignore_patterns and break
 
     latest_version_in_registry="$(curl -s https://gcr.io/v2/$image/tags/list | jq -r '.tags[]' | sort -V -t. -k1,1 -k2,2 -k3,3 | grep -oP '^v?[0-9]+\.[0-9]+\.[0-9]+$' | tail -n 1)"
@@ -171,6 +173,7 @@ do
     v_rematched=${BASH_REMATCH[2]}
     echo "image: $image, v: $v_rematched"
     
+    ignore=false
     ignore_check # check if image is in ignore_patterns and break
 
     # TODO: Private repos require authentication with a PAT or github token
