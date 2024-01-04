@@ -5,6 +5,9 @@ services:
   hub:
     image: docker.io/bitnami/postgresql-repmgr:14.7.0
 
+  hub-ignore:
+    image: docker.io/prom/alertmanager:v0.26.0
+
   ghcr:
     image: ghcr.io/swissbuechi/one-time-secret:1.0.0
 

@@ -6,24 +6,49 @@ default_branch="${1:-main}"
 prs="${2:-generate}"
 # generate $skip_patterns
 IFS=',' read -ra skip_patterns <<< "$3"
+# generate $ignore_patterns
+IFS=',' read -ra ignore_patterns <<< "$4"
 
 # branching, pr, senver compare and sed logic
+
+ignore=false
+ignore_check() {
+    for ignore_pattern in "${ignore_patterns[@]}"
+    do
+        # this might be to wide and catch more than expected but it's a start
+        if [[ "$image" == *"$ignore_pattern"* ]]
+        then
+            ignore=true
+            break
+        fi
+    done
+    if "$ignore"
+    then
+        return
+    fi
+}
+
+skip=false
+skip_check() {
+    for skip_pattern in "${skip_patterns[@]}"
+    do
+        if [[ "$image:$latest_version_in_registry" == *"$skip_pattern"* ]]
+        then
+            skip=true
+            break
+        fi
+    done
+    if "$skip"
+    then
+        return
+    fi
+}
+
+
 versions_magic() {
     if [ "$latest_version_in_registry" != "$v_rematched" ] && [ "$prs" = "generate" ]
     then
-        skip=false
-        for skip_pattern in "${skip_patterns[@]}"
-        do
-            if [[ "$image:$latest_version_in_registry" == *"$skip_pattern"* ]]
-            then
-                skip=true
-                break
-            fi
-        done
-        if "$skip"
-        then
-            return
-        fi
+        skip_check # check if image is in skip_patterns and break
         echo "WARN: There is a new version [$latest_version_in_registry] for $image:$v_rematched"
         # branch out and pr if changes
         git checkout -B "compose/$image"
@@ -83,6 +108,8 @@ do
         image="library/$image"
     fi
 
+    ignore_check # check if image is in ignore_patterns and break
+
     echo "image: $image, v: $v_rematched"
     # read X number of tag pages
     for page in 1 2 3
@@ -106,6 +133,8 @@ do
     v_rematched=${BASH_REMATCH[2]}
     echo "image: $image, v: $v_rematched"
     
+    ignore_check # check if image is in ignore_patterns and break
+
     latest_version_in_registry="$(curl -s https://mcr.microsoft.com/v2/$image/tags/list | jq -r '.tags[]' | sort -V -t. -k1,1 -k2,2 -k3,3 | grep -oP '^v?[0-9]+\.[0-9]+\.[0-9]+$' | tail -n 1)"
 
     # the magic
@@ -123,6 +152,8 @@ do
     v_rematched=${BASH_REMATCH[2]}
     echo "image: $image, v: $v_rematched"
     
+    ignore_check # check if image is in ignore_patterns and break
+
     latest_version_in_registry="$(curl -s https://gcr.io/v2/$image/tags/list | jq -r '.tags[]' | sort -V -t. -k1,1 -k2,2 -k3,3 | grep -oP '^v?[0-9]+\.[0-9]+\.[0-9]+$' | tail -n 1)"
 
     # the magic
@@ -140,6 +171,8 @@ do
     v_rematched=${BASH_REMATCH[2]}
     echo "image: $image, v: $v_rematched"
     
+    ignore_check # check if image is in ignore_patterns and break
+
     # TODO: Private repos require authentication with a PAT or github token
     # ghcr_token=$(echo $GITHUB_TOKEN | base64)
     
