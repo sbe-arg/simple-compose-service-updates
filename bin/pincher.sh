@@ -90,7 +90,7 @@ versions_magic() {
 }
 
 # find all compose files
-find_compose_files
+detect_compose_files
 
 # dockerhub
 versions_dockerio=$(for file in $compose_files; do yq '.services[].image' $file | grep docker.io | sort | uniq; done)
