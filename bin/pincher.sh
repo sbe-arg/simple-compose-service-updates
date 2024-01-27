@@ -36,6 +36,9 @@ skip_check() {
     done
 }
 
+detect_compose_files() {
+    compose_files=$(find -name '*compose*.yml' -o -name '*compose*.yaml' -type f)
+}
 
 versions_magic() {
     skip=false
@@ -51,7 +54,7 @@ versions_magic() {
         git checkout -B "compose/$image"
         git pull origin "compose/$image"
         # sed compose files on branch
-        for file in $(find -name '*compose*.yml' -o -name '*compose*.yaml' -type f)
+        for file in $compose_files
         do
             if [[ -f "$file" ]]
             then
@@ -86,8 +89,11 @@ versions_magic() {
     fi
 }
 
+# find all compose files
+find_compose_files
+
 # dockerhub
-versions_dockerio=$(yq '.services[].image' ./*compose*.y* | grep docker.io | sort | uniq)
+versions_dockerio=$(for file in $compose_files; do yq '.services[].image' $file | grep docker.io | sort | uniq; done)
 for version in $versions_dockerio
 do
     versions_in_registry=''
@@ -100,7 +106,7 @@ do
     # this registry has some images under library/ those do not match the compose structures
     # images such as telegraf, nginx, prometheus, etc
     if [[ "$image" != *'/'* ]]
-    then 
+    then
         image_orig="$image"
         image="library/$image"
     fi
@@ -125,7 +131,7 @@ do
 done
 
 # microsoft mcr
-versions_mcr=$(yq '.services[].image' ./*compose*.y* | grep mcr.microsoft.com | sort | uniq)
+versions_mcr=$(for file in $compose_files; do yq '.services[].image' $file | grep mcr.microsoft.com | sort | uniq; done)
 for version in $versions_mcr
 do
     latest_version_in_registry=""
@@ -134,7 +140,7 @@ do
     image=${BASH_REMATCH[1]}
     v_rematched=${BASH_REMATCH[2]}
     echo "image: $image, v: $v_rematched"
-    
+
     ignore=false
     ignore_check # check if image is in ignore_patterns and break
     if $ignore
@@ -149,7 +155,7 @@ do
 done
 
 # google gcr
-versions_gcr=$(yq '.services[].image' ./*compose*.y* | grep gcr.io | sort | uniq)
+versions_gcr=$(for file in $compose_files; do yq '.services[].image' $file | grep gcr.io | sort | uniq; done)
 for version in $versions_gcr
 do
     latest_version_in_registry=""
@@ -158,7 +164,7 @@ do
     image=${BASH_REMATCH[1]}
     v_rematched=${BASH_REMATCH[2]}
     echo "image: $image, v: $v_rematched"
-    
+
     ignore=false
     ignore_check # check if image is in ignore_patterns and break
     if $ignore
@@ -173,7 +179,7 @@ do
 done
 
 # github ghcr
-versions_ghcr=$(yq '.services[].image' ./*compose*.y* | grep ghcr.io | sort | uniq)
+versions_ghcr=$(for file in $compose_files; do yq '.services[].image' $file | grep ghcr.io | sort | uniq; done)
 for version in $versions_ghcr
 do
     latest_version_in_registry=""
@@ -182,7 +188,7 @@ do
     image=${BASH_REMATCH[1]}
     v_rematched=${BASH_REMATCH[2]}
     echo "image: $image, v: $v_rematched"
-    
+
     ignore=false
     ignore_check # check if image is in ignore_patterns and break
     if $ignore
@@ -192,9 +198,33 @@ do
 
     # TODO: Private repos require authentication with a PAT or github token
     # ghcr_token=$(echo $GITHUB_TOKEN | base64)
-    
+
     ghcr_token=$(curl -s https://ghcr.io/token\?scope\="repository:$image:pull" | jq -r .token)
     latest_version_in_registry="$(curl -H "Authorization: Bearer ${ghcr_token}" -s https://ghcr.io/v2/$image/tags/list | jq -r '.tags[]' | sort -V -t. -k1,1 -k2,2 -k3,3 | grep -oP '^v?[0-9]+\.[0-9]+\.[0-9]+$' | tail -n 1)"
+
+    # the magic
+    [ -n "$latest_version_in_registry" ] && versions_magic
+done
+
+# quay.io
+versions_quay=$(for file in $compose_files; do yq '.services[].image' $file | grep quay.io | sort | uniq; done)
+for version in $versions_quay
+do
+    latest_version_in_registry=""
+
+    [[ $version =~ quay.io\/(.*)\:(.*) ]]
+    image=${BASH_REMATCH[1]}
+    v_rematched=${BASH_REMATCH[2]}
+    echo "image: $image, v: $v_rematched"
+
+    ignore=false
+    ignore_check # check if image is in ignore_patterns and break
+    if $ignore
+    then
+        break
+    fi
+
+    latest_version_in_registry="$(curl -s https://quay.io/v2/$image/tags/list | jq -r '.tags[]' | sort -V -t. -k1,1 -k2,2 -k3,3 | grep -oP '^v?[0-9]+\.[0-9]+\.[0-9]+$' | tail -n 1)"
 
     # the magic
     [ -n "$latest_version_in_registry" ] && versions_magic
