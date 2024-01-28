@@ -224,7 +224,7 @@ do
         break
     fi
 
-    latest_version_in_registry="$(curl -s https://quay.io/v2/$image/tags/list | jq -r '.tags[]' | sort -V -t. -k1,1 -k2,2 -k3,3 | grep -oP '^v?[0-9]+\.[0-9]+\.[0-9]+$' | tail -n 1)"
+    latest_version_in_registry="$(curl -s https://quay.io/api/v1/repository/$image/tag/ | jq -r '.tags[].name' | sort -V -t. -k1,1 -k2,2 -k3,3 | grep -oP '^v?[0-9]+\.[0-9]+\.[0-9]+$' | tail -n 1)"
 
     # the magic
     [ -n "$latest_version_in_registry" ] && versions_magic
