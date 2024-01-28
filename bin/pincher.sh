@@ -93,7 +93,7 @@ versions_magic() {
 detect_compose_files
 
 # dockerhub
-versions_dockerio=$(yq -r 'try .services[].image' $compose_files | grep docker.io | sort | uniq)
+versions_dockerio=$(yq -r '.services[]?.image' $compose_files | grep docker.io | sort | uniq)
 for version in $versions_dockerio
 do
     versions_in_registry=''
@@ -131,7 +131,7 @@ do
 done
 
 # microsoft mcr
-versions_mcr=$(yq -r 'try .services[].image' $compose_files | grep mcr.microsoft.com | sort | uniq)
+versions_mcr=$(yq -r '.services[]?.image' $compose_files | grep mcr.microsoft.com | sort | uniq)
 for version in $versions_mcr
 do
     latest_version_in_registry=""
@@ -155,7 +155,7 @@ do
 done
 
 # google gcr
-versions_gcr=$(yq -r 'try .services[].image' $compose_files | grep gcr.io | sort | uniq)
+versions_gcr=$(yq -r '.services[]?.image' $compose_files | grep gcr.io | sort | uniq)
 for version in $versions_gcr
 do
     latest_version_in_registry=""
@@ -179,7 +179,7 @@ do
 done
 
 # github ghcr
-versions_ghcr=$(yq -r 'try .services[].image' $compose_files | grep ghcr.io | sort | uniq)
+versions_ghcr=$(yq -r '.services[]?.image' $compose_files | grep ghcr.io | sort | uniq)
 for version in $versions_ghcr
 do
     latest_version_in_registry=""
@@ -207,7 +207,7 @@ do
 done
 
 # quay.io
-versions_quay=$(yq -r 'try .services[].image' $compose_files | grep quay.io | sort | uniq)
+versions_quay=$(yq -r '.services[]?.image' $compose_files | grep quay.io | sort | uniq)
 for version in $versions_quay
 do
     latest_version_in_registry=""
