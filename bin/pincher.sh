@@ -224,7 +224,9 @@ do
         break
     fi
 
-    latest_version_in_registry="$(curl -s https://quay.io/api/v1/repository/$image/tag/ | jq -r '.tags[].name' | sort -V -t. -k1,1 -k2,2 -k3,3 | grep -oP '^v?[0-9]+\.[0-9]+\.[0-9]+$' | tail -n 1)"
+    # Set page limit to 100 to get more tags to avoids issues
+    # with images that have many manifests without proper tags like prometheus
+    latest_version_in_registry="$(curl -s https://quay.io/api/v1/repository/$image/tag/\?limit\=100\&page\=1 | jq -r '.tags[].name' | sort -V -t. -k1,1 -k2,2 -k3,3 | grep -oP '^v?[0-9]+\.[0-9]+\.[0-9]+$' | tail -n 1)"
 
     # the magic
     [ -n "$latest_version_in_registry" ] && versions_magic
